@@ -15,10 +15,8 @@
  *   Normalize the prefix away to one key per call, POST one row on the first
  *   frame, and PATCH it when a later frame carries a strictly longer body.
  */
-import {
-  formatChannelProgressDraftLineForEntry,
-  isCompleteAgentPreamble,
-} from "openclaw/plugin-sdk/channel-outbound";
+import { formatChannelProgressDraftLineForEntry } from "openclaw/plugin-sdk/channel-outbound";
+import { isCompleteAgentPreamble } from "openclaw/plugin-sdk/reply-payload";
 import type { ClickClackItemEventPayload } from "./progress.js";
 import type { ClickClackMessage, ClickClackMessageProvenance } from "./types.js";
 

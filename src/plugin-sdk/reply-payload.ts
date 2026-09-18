@@ -13,6 +13,7 @@ import {
 import { createReplyToFanout } from "../infra/outbound/reply-policy.js";
 import { hasReplyPayloadContent } from "../interactive/payload.js";
 
+export { isCompleteAgentPreamble } from "../agents/agent-activity-presentation.js";
 export type { MediaPayloadInput } from "../channels/plugins/media-payload.js";
 /** @deprecated Inbound contexts use `media`; outbound replies use `ReplyPayload.mediaUrl(s)`. */
 export type { MediaPayload } from "../channels/plugins/media-payload.js";

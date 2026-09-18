@@ -3,10 +3,8 @@
  * OpenClaw turn. ClickClack renders this as its compact "Agent is
  * responding" status and the detailed progress lines above the composer.
  */
-import {
-  buildChannelProgressDraftLine,
-  isCompleteAgentPreamble,
-} from "openclaw/plugin-sdk/channel-outbound";
+import { buildChannelProgressDraftLine } from "openclaw/plugin-sdk/channel-outbound";
+import { isCompleteAgentPreamble } from "openclaw/plugin-sdk/reply-payload";
 import type { GetReplyOptions } from "openclaw/plugin-sdk/reply-runtime";
 
 export type ClickClackItemEventPayload = Parameters<NonNullable<GetReplyOptions["onItemEvent"]>>[0];

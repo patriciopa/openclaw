@@ -15,6 +15,7 @@ describe("defineChannelMessageAdapter", () => {
       import("openclaw/plugin-sdk/channel-message"),
       import("openclaw/plugin-sdk/channel-inbound"),
       import("openclaw/plugin-sdk/channel-reply-pipeline"),
+      import("openclaw/plugin-sdk/reply-payload"),
     ] as const);
   let pluginSdkSubpaths: Awaited<ReturnType<typeof loadPluginSdkSubpaths>>;
 
@@ -23,7 +24,8 @@ describe("defineChannelMessageAdapter", () => {
   });
 
   it("keeps channel plugin SDK subpaths aligned", async () => {
-    const [channelOutbound, channelMessage, , channelReplyPipeline] = pluginSdkSubpaths;
+    const [channelOutbound, channelMessage, , channelReplyPipeline, replyPayload] =
+      pluginSdkSubpaths;
 
     expect(channelOutbound.createChannelMessageReplyPipeline).toBe(
       channelReplyPipeline.createChannelReplyPipeline,
@@ -36,6 +38,10 @@ describe("defineChannelMessageAdapter", () => {
     );
     expect(channelMessage.createTypingCallbacks).toBe(channelReplyPipeline.createTypingCallbacks);
     expect(channelOutbound.defineChannelMessageAdapter).toBe(defineCoreChannelMessageAdapter);
+    expect(replyPayload.isCompleteAgentPreamble({ phase: "end", progressText: "Ready" })).toBe(
+      true,
+    );
+    expect(channelMessage).not.toHaveProperty("isCompleteAgentPreamble");
   });
 
   it("preserves legacy count-shaped dispatch projections", () => {
