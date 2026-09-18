@@ -1,3 +1,4 @@
+import fs from "node:fs/promises";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { useAutoCleanupTempDirTracker } from "../../../test/helpers/temp-dir.js";
@@ -200,7 +201,7 @@ vi.mock("./update-command-post-core.js", async (importOriginal) => ({
   writePostCorePluginUpdateResultFile: vi.fn(async () => undefined),
 }));
 
-import { readPackageVersion, tryWriteCompletionCache } from "./shared.js";
+import { readPackageVersion, resolveUpdateRoot, tryWriteCompletionCache } from "./shared.js";
 import { convergeUpdatePlugins } from "./update-command-convergence.js";
 import { updateFinalizeCommand } from "./update-command-finalize.js";
 import {
@@ -236,7 +237,7 @@ describe("update plugin lifecycle lease boundaries", () => {
     vi.unstubAllEnvs();
   });
 
-  beforeEach(() => {
+  beforeEach(async () => {
     // Ordering-only fixtures own an absent private state root; never probe a
     // shared host path while real recovery admission is running.
     mocks.databasePath = path.join(dirs.make("update-lease-order-"), "state", "openclaw.sqlite");
@@ -251,6 +252,9 @@ describe("update plugin lifecycle lease boundaries", () => {
     mocks.interactive = false;
     mocks.triage.mockReset().mockResolvedValue({ status: "completed", hint: "fixture" });
     mocks.maintenance.mockReset().mockResolvedValue(undefined);
+    const root = dirs.make("update-lease-package-");
+    await fs.writeFile(path.join(root, "package.json"), JSON.stringify({ name: "openclaw" }));
+    vi.mocked(resolveUpdateRoot).mockResolvedValue(root);
     vi.mocked(readPackageVersion).mockResolvedValue(VERSION);
     vi.mocked(continuePostCoreUpdateInFreshProcess).mockImplementation(async () => {
       record("target-convergence");
@@ -294,7 +298,8 @@ describe("update plugin lifecycle lease boundaries", () => {
         const body = vi
           .mocked(defaultRuntime.log)
           .mock.calls.map(([value]) => String(value))
-          .join("\n");
+          .find((value) => value.startsWith("# OpenClaw update failure report"));
+        expect(body).toBeDefined();
         expect(body).toContain("Reason code: doctor-failed");
         expect(body).toContain("Update mode: package");
         expect(body).toContain("Update target: 2026.9.4");
